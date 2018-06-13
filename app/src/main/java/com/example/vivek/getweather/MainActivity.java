@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     TextView maxminTV;
     TextView resultTV;
     ImageView iconImage;
+    private boolean berr=false;
 
     public void setImage(String main){
         String img = "rain";
@@ -65,9 +66,14 @@ public class MainActivity extends AppCompatActivity {
 
 
         try {
+            if(cityName.getText().toString().trim().equals("")||cityName.getText().toString().trim().isEmpty()){
+                Toast.makeText(this,"City Name can't be empty",Toast.LENGTH_SHORT).show();
+                return;
+            }
             String city = URLEncoder.encode(cityName.getText().toString(),"UTF-8");
             DownloadTask task = new DownloadTask();
             task.execute("http://api.openweathermap.org/data/2.5/weather?q="+city+"&appid=44b7f75d8feb214cdc4fb5d46faf4e9c").get();
+
         } catch (Exception e) {
             Log.i("Error city:",e.getMessage());
             Toast.makeText(getApplicationContext(),"Unable to find city",Toast.LENGTH_LONG).show();;
@@ -81,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
         protected String doInBackground(String... urls) {
 
             try {
+                berr=false;
                 String result = "";
                 URL url;
                 HttpURLConnection urlConnection = null;
@@ -101,14 +108,21 @@ public class MainActivity extends AppCompatActivity {
 
             } catch (Exception e) {
                 Log.e("Error city back:",e.getMessage());
-                Toast.makeText(getApplicationContext(),"Unable to find city",Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(),"Unable to find city",Toast.LENGTH_LONG).show();
+                berr = true;
+                return null;
             }
-            return null;
+
         }
 
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
+
+            if(berr){
+                Toast.makeText(getApplicationContext(),"Unable to find city",Toast.LENGTH_LONG).show();
+                return;
+            }
 
             try {
                 String message = "";
